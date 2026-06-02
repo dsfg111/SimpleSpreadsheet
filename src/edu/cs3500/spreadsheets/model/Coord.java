@@ -1,6 +1,8 @@
 package edu.cs3500.spreadsheets.model;
 
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A value type representing coordinates in a {@link Worksheet}.
@@ -46,6 +48,44 @@ public class Coord {
     }
     return ans.toString();
   }
+
+  private static final Pattern COORD_PATTERN = Pattern.compile("^([A-Z]+)([1-9][0-9]*)$");
+
+  /**
+   * 判断给定字符串是否是正确的电子表格单元格坐标索引的格式
+   *
+   * @param name 给定的坐标字符串
+   * @return true,如果坐标格式正确
+   */
+  public static boolean isValidCoordName(String name) {
+    if (name == null) return false;
+    Matcher m = COORD_PATTERN.matcher(name);
+
+    return m.matches();
+  }
+
+  /**
+   * 从字符串构造坐标
+   *
+   * @param name 坐标字符串
+   */
+  public static Coord parseCoord(String name) {
+    if (!isValidCoordName(name)) {
+      throw new IllegalArgumentException("Coord name not right");
+    }
+    Matcher m = COORD_PATTERN.matcher(name);
+    if (!m.matches()) {
+      throw new IllegalStateException("Unexpected match failure for validated coord");
+    }
+    String colName = m.group(1);
+    String rowName = m.group(2);
+
+    int col = colNameToIndex(colName);
+    int row = Integer.parseInt(rowName);
+
+    return new Coord(col, row);
+  }
+
 
   @Override
   public String toString() {

@@ -3,7 +3,7 @@ package edu.cs3500.spreadsheets.sexp;
 import java.util.List;
 
 /**
- * An abstracted function object for processing any {@link Sexp}ressions.
+ * An abstracted function object for processing any {@link Sexp} ressions.
  * @param <R> The return type of this function
  */
 public interface SexpVisitor<R> {
