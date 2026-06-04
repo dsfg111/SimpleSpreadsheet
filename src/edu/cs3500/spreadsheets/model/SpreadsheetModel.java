@@ -14,14 +14,16 @@ public interface SpreadsheetModel {
    *
    * @param loc 单元格坐标
    * @param contents 原始字符串，如“3.14”，“=SUM(A1:B2)”，"HEllO"。
+   * @throws IllegalArgumentException 如果参数为 null
    */
   void setCellContents(Coord loc, String contents);
 
   /**
-   * 获取单元格的原始内容
+   * 获取单元格的原始内容,如果为空则返回空字符串 ""
    *
    * @param loc 单元格位置
    * @return 原始字符串内容
+   * @throws IllegalArgumentException 如果参数为 null
    */
   String getCellContents(Coord loc);
 
@@ -34,12 +36,4 @@ public interface SpreadsheetModel {
    */
   Value evaluate(Coord coord) throws IllegalStateException;
 
-  /**
-   * 获取矩形区域的所有值
-   *
-   * @param start 开始坐标
-   * @param end   结束坐标
-   * @return 区域内的所有值的区域值
-   */
-  Value getRegionValue(Coord start, Coord end);
 }

@@ -6,10 +6,14 @@ import java.util.Objects;
  * An arbitrary symbol.
  */
 public class SSymbol implements Sexp {
-  String name;
+  private final String name;
 
   public SSymbol(String name) {
     this.name = Objects.requireNonNull(name);
+  }
+
+  public String getName() {
+    return name;
   }
 
   @Override

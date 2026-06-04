@@ -1,11 +1,12 @@
 package edu.cs3500.spreadsheets.model.value;
 
+import edu.cs3500.spreadsheets.model.formula.FormulaVisitor;
 import java.util.Objects;
 
-public class BoolValue implements Value{
+public class Bool implements Value{
   private final boolean val;
 
-  public BoolValue(boolean val) {
+  public Bool(boolean val) {
     this.val = val;
   }
 
@@ -22,7 +23,7 @@ public class BoolValue implements Value{
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    BoolValue that = (BoolValue) o;
+    Bool that = (Bool) o;
     return val == that.val;
   }
 
@@ -34,5 +35,10 @@ public class BoolValue implements Value{
   @Override
   public <R> R accept(ValueVisitor<R> visitor) {
     return visitor.visitBool(val);
+  }
+
+  @Override
+  public <R> R accept(FormulaVisitor<R> visitor) {
+    return visitor.visitBool(this);
   }
 }

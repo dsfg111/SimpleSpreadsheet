@@ -6,5 +6,5 @@ public interface ValueVisitor<R> {
   R visitNum(double d);
   R visitBool(boolean b);
   R visitStr(String s);
-  R visitRegion(List<Value> cells);
+  R visitListValue(List<Value> values);
 }

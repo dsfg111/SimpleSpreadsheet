@@ -2,9 +2,9 @@ package edu.cs3500.spreadsheets.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.cs3500.spreadsheets.model.value.BoolValue;
-import edu.cs3500.spreadsheets.model.value.NumValue;
-import edu.cs3500.spreadsheets.model.value.StrValue;
+import edu.cs3500.spreadsheets.model.value.Bool;
+import edu.cs3500.spreadsheets.model.value.Num;
+import edu.cs3500.spreadsheets.model.value.Str;
 import edu.cs3500.spreadsheets.model.value.Value;
 import org.junit.jupiter.api.Test;
 
@@ -20,18 +20,23 @@ class BasicSpreadsheetModelTest {
     assertEquals("3.14", model.getCellContents(A1));
     assertEquals("", model.getCellContents(A2));
 
-    // 设置 A2 为 "ABC"
-    model.setCellContents(A2, "ABC");
-    assertEquals("3.14", model.getCellContents(A1));
-    assertEquals("ABC", model.getCellContents(A2));
-
     // 设置 A1 为 "true"
     // 设置 A2 为 "A1"
     model.setCellContents(A1, "true");
     model.setCellContents(A2, "A1");
     assertEquals("true", model.getCellContents(A1));
     assertEquals("A1", model.getCellContents(A2));
+  }
 
+  @Test
+  void testSetCellContent_unknownSymbol() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+    // 设置 A2 为 "ABC"
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> model.setCellContents(A1, "ABC")
+    );
   }
 
   @Test
@@ -44,13 +49,13 @@ class BasicSpreadsheetModelTest {
     model.setCellContents(A2, "3.14");
     Value v1 = model.evaluate(A1);
     Value v2 = model.evaluate(A2);
-    assertEquals(new NumValue(1), v1);
-    assertEquals(new NumValue(3.14), v2);
+    assertEquals(new Num(1), v1);
+    assertEquals(new Num(3.14), v2);
     assertEquals("1", v1.toString());
     assertEquals("3.14", v2.toString());
 
     model.setCellContents(A1, "9.1");
-    assertEquals(new NumValue(9.1), model.evaluate(A1));
+    assertEquals(new Num(9.1), model.evaluate(A1));
   }
 
   @Test
@@ -63,8 +68,8 @@ class BasicSpreadsheetModelTest {
     model.setCellContents(A2, "false");
     Value v1 = model.evaluate(A1);
     Value v2 = model.evaluate(A2);
-    assertEquals(new BoolValue(true), v1);
-    assertEquals(new BoolValue(false), v2);
+    assertEquals(new Bool(true), v1);
+    assertEquals(new Bool(false), v2);
     assertEquals("true", v1.toString());
     assertEquals("false", v2.toString());
   }
@@ -79,8 +84,8 @@ class BasicSpreadsheetModelTest {
     model.setCellContents(A2, "\"false\"");
     Value v1 = model.evaluate(A1);
     Value v2 = model.evaluate(A2);
-    assertEquals(new StrValue("hello"), v1);
-    assertEquals(new StrValue("false"), v2);
+    assertEquals(new Str("hello"), v1);
+    assertEquals(new Str("false"), v2);
     assertEquals("\"hello\"", v1.toString());
     assertEquals("\"false\"", v2.toString());
   }
@@ -94,8 +99,8 @@ class BasicSpreadsheetModelTest {
     model.setCellContents(A1, "1");
     model.setCellContents(A2, "A1");
 
-    assertEquals(new NumValue(1), model.evaluate(A1));
-    assertEquals(new NumValue(1), model.evaluate(A2));
+    assertEquals(new Num(1), model.evaluate(A1));
+    assertEquals(new Num(1), model.evaluate(A2));
 
     model.setCellContents(A2, "B1");
     assertNull(model.evaluate(A2));
@@ -112,10 +117,32 @@ class BasicSpreadsheetModelTest {
     model.setCellContents(A2, "1");
     model.setCellContents(A3, "(SUM A1 A2)");
 
-    assertEquals(new NumValue(2), model.evaluate(A3));
+    assertEquals(new Num(2), model.evaluate(A3));
 
     Coord B1 = new Coord(2, 1);
     model.setCellContents(B1, "(SUM A3 1)");
-    assertEquals(new NumValue(3), model.evaluate(B1));
+    assertEquals(new Num(3), model.evaluate(B1));
+  }
+
+  @Test
+  void testEvaluate_funcSum_notNumArgs() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+
+    model.setCellContents(A1, "(SUM true false)");
+    assertEquals(new Num(0), model.evaluate(A1));
+
+    model.setCellContents(A1, "(SUM \"NotNum\")");
+    assertEquals(new Num(0), model.evaluate(A1));
+
+    model.setCellContents(A1, "(SUM 1 \"NotNum\")");
+    assertEquals(new Num(1), model.evaluate(A1));
+  }
+
+  void testEvaluate_emptyCell() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+
+    assertNull(model.evaluate(A1));
   }
 }

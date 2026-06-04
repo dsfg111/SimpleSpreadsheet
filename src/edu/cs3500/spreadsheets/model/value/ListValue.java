@@ -1,17 +1,13 @@
 package edu.cs3500.spreadsheets.model.value;
 
-import edu.cs3500.spreadsheets.model.Coord;
+import edu.cs3500.spreadsheets.model.formula.FormulaVisitor;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * 对电子表格中矩形区域的引用,
- * 要求 end 坐标不小于 start 坐标
- */
-public class RegionValue implements Value{
+public class ListValue implements Value{
   private final List<Value> values;
 
-  public RegionValue(List<Value> values) {
+  public ListValue(List<Value> values) {
     this.values = Objects.requireNonNull(values);
   }
 
@@ -28,7 +24,7 @@ public class RegionValue implements Value{
   public boolean equals(Object o) {
     if (o == this) return true;
     if (o == null || o.getClass() != getClass()) return false;
-    RegionValue that = (RegionValue) o;
+    ListValue that = (ListValue) o;
     return this.values.equals(that.values);
   }
 
@@ -37,8 +33,14 @@ public class RegionValue implements Value{
     return Objects.hash(values);
   }
 
+
   @Override
   public <R> R accept(ValueVisitor<R> visitor) {
-    return visitor.visitRegion(values);
+    return visitor.visitListValue(values);
+  }
+
+  @Override
+  public <R> R accept(FormulaVisitor<R> visitor) {
+    return visitor.visitListValue(this);
   }
 }
