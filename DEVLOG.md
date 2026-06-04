@@ -1,5 +1,16 @@
 # 开发日志
 
+## 2026-06-04
+- **进度**: 引入 Formula 重构模型求值逻辑
+- **设计**:  
+
+    String --(SetCell)--> Sexp --(SetCell)--> Formula --(Evaluate)--> Value  
+                ^                    ^                      ^
+                |                    |                      |
+              Parser             FormulaTrans           FormulaEval
+
+    函数计算逻辑在 FormulaEval 中
+
 ## 2026-06-02
 - **进度**: 基本实现了 model 的接口功能
 - **未完成**: 
