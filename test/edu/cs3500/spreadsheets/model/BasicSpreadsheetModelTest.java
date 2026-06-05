@@ -139,10 +139,117 @@ class BasicSpreadsheetModelTest {
     assertEquals(new Num(1), model.evaluate(A1));
   }
 
+  @Test
   void testEvaluate_emptyCell() {
     SpreadsheetModel model = new BasicSpreadsheetModel();
     Coord A1 = new Coord(1, 1);
 
     assertNull(model.evaluate(A1));
+  }
+
+  @Test
+  void testEvaluate_funcProduct() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+
+    model.setCellContents(A1, "(PRODUCT 1)");
+    assertEquals(new Num(1), model.evaluate(A1));
+
+    model.setCellContents(A1, "(PRODUCT 1 2)");
+    assertEquals(new Num(2), model.evaluate(A1));
+
+    model.setCellContents(A1, "(PRODUCT 10 11)");
+    assertEquals(new Num(110), model.evaluate(A1));
+  }
+
+  @Test
+  void testEvaluate_funcProduct_notNumArgs() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+
+    model.setCellContents(A1, "(PRODUCT true false)");
+    assertEquals(new Num(0), model.evaluate(A1));
+
+    model.setCellContents(A1, "(PRODUCT \"NotNum\")");
+    assertEquals(new Num(0), model.evaluate(A1));
+
+    model.setCellContents(A1, "(PRODUCT 1 \"NotNum\")");
+    assertEquals(new Num(1), model.evaluate(A1));
+  }
+
+  @Test
+  void testEvaluate_funcLessThan() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+
+    model.setCellContents(A1, "(< 7 1)");
+    assertEquals(new Bool(false), model.evaluate(A1));
+
+    model.setCellContents(A1, "(< 7 9)");
+    assertEquals(new Bool(true), model.evaluate(A1));
+
+  }
+
+  @Test
+  void testEvaluate_funcLessThan_overTwoArg() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+
+    model.setCellContents(A1, "(< 7 9 2)");
+    assertThrows(
+        IllegalStateException.class,
+        () -> model.evaluate(A1)
+    );
+
+    model.setCellContents(A1, "(< 7)");
+    assertThrows(
+        IllegalStateException.class,
+        () -> model.evaluate(A1)
+    );
+  }
+
+
+  @Test
+  void testEvaluate_funcLessThan_notNumArg() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+
+    model.setCellContents(A1, "(< 7 true)");
+    assertThrows(
+        IllegalStateException.class,
+        () -> model.evaluate(A1)
+    );
+
+    model.setCellContents(A1, "(< \"a\" \"b\")");
+    assertThrows(
+        IllegalStateException.class,
+        () -> model.evaluate(A1)
+    );
+  }
+
+  @Test
+  void testEvaluate_funcConcat() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+
+    model.setCellContents(A1, "(CONCAT \"hello\")");
+    assertEquals(new Str("hello"), model.evaluate(A1));
+
+    model.setCellContents(A1, "(CONCAT \"hello \" \"world\")");
+    assertEquals(new Str("hello world"), model.evaluate(A1));
+
+  }
+
+
+  @Test
+  void testEvaluate_funcConcat_notStrArg() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+
+    model.setCellContents(A1, "(CONCAT 1 2)");
+    assertEquals(new Str(""), model.evaluate(A1));
+
+    model.setCellContents(A1, "(CONCAT 9 \"hello\")");
+    assertEquals(new Str("hello"), model.evaluate(A1));
   }
 }

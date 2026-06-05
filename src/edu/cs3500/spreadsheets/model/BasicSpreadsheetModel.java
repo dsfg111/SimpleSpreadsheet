@@ -22,7 +22,7 @@ public class BasicSpreadsheetModel implements SpreadsheetModel{
   // 所有非空有效单元格
   private Map<Coord, CellData> cells = new HashMap<>();
   // 求值访问器
-  FormulaVisitor<Value> evalFormula = new FormulaEval(this);
+  FormulaVisitor<Value> formulaEval = new FormulaEval(this);
   // Sexp 转 Formula 访问器
   SexpVisitor<Formula> formulaTrans = new FormulaTranslator();
 
@@ -61,14 +61,23 @@ public class BasicSpreadsheetModel implements SpreadsheetModel{
   }
 
   @Override
-  public Value evaluate(Coord coord) throws IllegalStateException {
-    if (cells.containsKey(coord)) {
-      CellData data = cells.get(coord);
-      Formula formula = data.formula;
-
-      return formula.accept(evalFormula);
-    } else {    // null 代表空值
-      return null;
+  public Value evaluate(Coord loc){
+    if (loc == null) {
+      throw new IllegalArgumentException("Location cannot be null");
     }
+
+    CellData data = cells.get(loc);
+    if (data == null) {
+      return Blank.INSTANCE;
+    }
+
+    try {
+      return data.formula.accept(formulaEval);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalStateException(
+          "Error in cell " + loc + ": " + e.getMessage(), e
+      );
+    }
+
   }
 }

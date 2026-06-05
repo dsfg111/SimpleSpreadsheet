@@ -1,8 +1,6 @@
 package edu.cs3500.spreadsheets.model;
 
 import edu.cs3500.spreadsheets.model.value.Value;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * 电子表格模型
@@ -30,10 +28,10 @@ public interface SpreadsheetModel {
   /**
    * 获取单元格求值后的结果
    *
-   * @param coord 单元格坐标
+   * @param loc 单元格坐标
    * @return 单元格的值
    * @throws IllegalStateException 如果单元格无法求值
    */
-  Value evaluate(Coord coord) throws IllegalStateException;
+  Value evaluate(Coord loc);
 
 }

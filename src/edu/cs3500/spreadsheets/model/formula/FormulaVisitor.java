@@ -1,5 +1,6 @@
 package edu.cs3500.spreadsheets.model.formula;
 
+import edu.cs3500.spreadsheets.model.Blank;
 import edu.cs3500.spreadsheets.model.value.*;
 
 public interface FormulaVisitor<R> {
@@ -10,4 +11,5 @@ public interface FormulaVisitor<R> {
   R visitCellRange(CellRange r);
   R visitFuncApp(Func f);
   R visitListValue(ListValue l);
+  R visitBlank(Blank blank);
 }

@@ -1,5 +1,13 @@
 # 开发日志
 
+## 2026-06-05
+**进度**: 
+- 添加 PRODUCT(相乘), <(小于), CONCAT(拼接字符串) 函数
+- 规范了抛出异常，在模型 evaluate 函数中将 FormulaEval 的 IllegalArgumentException 转换为 IllegalStateException
+
+**待办**: 检测禁止公式简的直接或间接引用
+
+
 ## 2026-06-04
 - **进度**: 引入 Formula 重构模型求值逻辑
 - **设计**:  
