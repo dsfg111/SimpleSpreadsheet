@@ -11,6 +11,7 @@ public class BasicSpreadsheetModel implements SpreadsheetModel{
     String rawContents;   // 原始字符串
     Sexp sexp;    // 原始字符串解析出的 S 表达式
     Formula formula;  // Sexp 转换的公式
+    Value cachedValue; // 缓存的值
 
     CellData(String raw, Sexp sexp, Formula formula) {
       this.rawContents = raw;
@@ -21,7 +22,6 @@ public class BasicSpreadsheetModel implements SpreadsheetModel{
 
   // 所有非空有效单元格
   private Map<Coord, CellData> cells = new HashMap<>();
-  // 求值访问器
   // Sexp 转 Formula 访问器
   SexpVisitor<Formula> formulaTrans = new FormulaTranslator();
 
@@ -86,16 +86,20 @@ public class BasicSpreadsheetModel implements SpreadsheetModel{
       throw new IllegalStateException("Circular reference detected at cell: " + loc);
     }
 
-    CellData data = cells.get(loc);
-    if (data == null) {
+    CellData cell = cells.get(loc);
+    if (cell == null) {
       return Blank.INSTANCE;
+    }
+    if (visited.contains(loc)) {
+      return cell.cachedValue;
     }
 
     visiting.add(loc);
 
     try {
       FormulaVisitor<Value> evalVisitor = new FormulaEval(visiting, visited);
-      Value result = data.formula.accept(evalVisitor);
+      Value result = cell.formula.accept(evalVisitor);
+      cell.cachedValue = result;
 
       return result;
     } catch (IllegalArgumentException e) {
@@ -176,6 +180,10 @@ public class BasicSpreadsheetModel implements SpreadsheetModel{
           return evalLessThan(flatArgs);
         case "CONCAT":
           return evalConcat(flatArgs);
+        case "SUB":
+          return evalSub(flatArgs);
+        case "SQRT":
+          return evalSqrt(flatArgs);
         default:
           throw new IllegalArgumentException("Unknown function name: " + funcName);
       }
@@ -247,4 +255,29 @@ public class BasicSpreadsheetModel implements SpreadsheetModel{
     }
   }
 
+  private Value evalSub(List<Value> args) {
+    if (args.size() != 2) {
+      throw new IllegalArgumentException("SUB required exactly two arguments");
+    }
+    Value left = args.get(0);
+    Value right = args.get(1);
+    if (!(left instanceof Num) || !(right instanceof Num)) {
+      throw new IllegalArgumentException("SUB requires numeric arguments");
+    }
+    double lv = ((Num) left).getValue();
+    double rv = ((Num) right).getValue();
+    return new Num(lv - rv);
+  }
+
+  private Value evalSqrt(List<Value> args) {
+    if (args.size() != 1) {
+      throw new IllegalArgumentException("SQRT required exactly one arguments");
+    }
+    Value v = args.get(0);
+    if (!(v instanceof Num)) {
+      throw new IllegalArgumentException("SQRT requires numeric arguments");
+    }
+    double n = ((Num) v).getValue();
+    return new Num(Math.sqrt(n));
+  }
 }

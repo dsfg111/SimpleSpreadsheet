@@ -365,4 +365,36 @@ class BasicSpreadsheetModelTest {
         () -> model.evaluate(B1)
     );
   }
+
+  @Test
+  void testEvaluate_cachedValue() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+    Coord A2 = new Coord(1, 2);
+
+    model.setCellContents(A1, "(SUM 1 1)");
+    model.setCellContents(A2, "(< A1 (SUM A1 1))");
+
+    assertEquals(new Bool(true), model.evaluate(A2));
+  }
+
+  @Test
+  void testEvaluate_funcSub() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+
+    model.setCellContents(A1, "(SUB 2 1)");
+
+    assertEquals(new Num(1), model.evaluate(A1));
+  }
+
+  @Test
+  void testEvaluate_funcSqrt() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+
+    model.setCellContents(A1, "(SQRT 16)");
+
+    assertEquals(new Num(4), model.evaluate(A1));
+  }
 }
