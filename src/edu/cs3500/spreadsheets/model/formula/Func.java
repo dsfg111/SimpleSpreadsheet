@@ -26,6 +26,6 @@ public class Func implements Formula{
 
   @Override
   public <R> R accept(FormulaVisitor<R> visitor) {
-    return visitor.visitFuncApp(this);
+    return visitor.visitFunc(this);
   }
 }

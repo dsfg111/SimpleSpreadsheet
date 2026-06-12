@@ -3,6 +3,7 @@ package edu.cs3500.spreadsheets.model;
 import static org.junit.jupiter.api.Assertions.*;
 
 import edu.cs3500.spreadsheets.model.value.Bool;
+import edu.cs3500.spreadsheets.model.value.ListValue;
 import edu.cs3500.spreadsheets.model.value.Num;
 import edu.cs3500.spreadsheets.model.value.Str;
 import edu.cs3500.spreadsheets.model.value.Value;
@@ -103,7 +104,7 @@ class BasicSpreadsheetModelTest {
     assertEquals(new Num(1), model.evaluate(A2));
 
     model.setCellContents(A2, "B1");
-    assertNull(model.evaluate(A2));
+    assertEquals(Blank.INSTANCE, model.evaluate(A2));
   }
 
   @Test
@@ -144,7 +145,7 @@ class BasicSpreadsheetModelTest {
     SpreadsheetModel model = new BasicSpreadsheetModel();
     Coord A1 = new Coord(1, 1);
 
-    assertNull(model.evaluate(A1));
+    assertEquals(Blank.INSTANCE, model.evaluate(A1));
   }
 
   @Test
@@ -251,5 +252,117 @@ class BasicSpreadsheetModelTest {
 
     model.setCellContents(A1, "(CONCAT 9 \"hello\")");
     assertEquals(new Str("hello"), model.evaluate(A1));
+  }
+
+  @Test
+  void testCyclicReference_directCellRef() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+
+    model.setCellContents(A1, "A1");
+    assertThrows(
+        IllegalStateException.class,
+        () -> model.evaluate(A1)
+    );
+
+    model.setCellContents(A1, "(SUM 1 A1)");
+    assertThrows(
+        IllegalStateException.class,
+        () -> model.evaluate(A1)
+    );
+  }
+
+  @Test
+  void testCyclicReference_directCellRange() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+
+    model.setCellContents(A1, "A1:B2");
+    assertThrows(
+        IllegalStateException.class,
+        () -> model.evaluate(A1)
+    );
+
+    model.setCellContents(A1, "(SUM A1:B2)");
+    assertThrows(
+        IllegalStateException.class,
+        () -> model.evaluate(A1)
+    );
+  }
+
+  @Test
+  void testEvaluate_CellRange() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+    Coord A2 = new Coord(1, 2);
+    Coord A3 = new Coord(1, 3);
+    Coord B1 = new Coord(2, 1);
+
+    model.setCellContents(B1, "A1:A2");
+
+    Value v = model.evaluate(B1);
+    assertEquals(
+        ListValue.class,
+        v.getClass()
+    );
+  }
+
+  @Test
+  void testFuncSum_cellRange() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+    Coord A2 = new Coord(1, 2);
+    Coord B1 = new Coord(2, 1);
+    Coord B2 = new Coord(2, 2);
+    Coord C1 = new Coord(3, 2);
+
+    model.setCellContents(A1, "1");
+    model.setCellContents(A2, "true");
+    model.setCellContents(B1, "\"aaa\"");
+    model.setCellContents(C1, "(SUM A1:B2)");
+
+    assertEquals(
+        new Num(1),
+        model.evaluate(C1)
+    );
+  }
+
+
+  @Test
+  void testCyclicReference_indirectCellRef() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+    Coord B1 = new Coord(2, 1);
+
+    model.setCellContents(A1, "B1");
+    model.setCellContents(B1, "A1");
+    assertThrows(
+        IllegalStateException.class,
+        () -> model.evaluate(A1)
+    );
+
+    assertThrows(
+        IllegalStateException.class,
+        () -> model.evaluate(B1)
+    );
+  }
+
+  @Test
+  void testCyclicReference_indirectCellRangeRef() {
+    SpreadsheetModel model = new BasicSpreadsheetModel();
+    Coord A1 = new Coord(1, 1);
+    Coord B1 = new Coord(2, 1);
+
+    model.setCellContents(A1, "B1");
+    model.setCellContents(B1, "A1:A2");
+    assertThrows(
+        IllegalStateException.class,
+        () -> model.evaluate(A1)
+    );
+
+    assertThrows(
+        IllegalStateException.class,
+        () -> model.evaluate(B1)
+    );
   }
 }

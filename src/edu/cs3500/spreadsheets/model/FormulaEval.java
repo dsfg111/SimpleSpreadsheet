@@ -53,7 +53,7 @@ public class FormulaEval implements FormulaVisitor<Value> {
   }
 
   @Override
-  public Value visitFuncApp(Func f) {
+  public Value visitFunc(Func f) {
     // 将所有矩形区域引用的 ListValue 展开
     List<Value> argValues = f.getArgs().stream()
         .map(arg -> arg.accept(this))

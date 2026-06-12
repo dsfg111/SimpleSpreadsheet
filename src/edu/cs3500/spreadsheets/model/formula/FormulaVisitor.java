@@ -9,7 +9,7 @@ public interface FormulaVisitor<R> {
   R visitStr(Str s);
   R visitCellRef(CellRef c);
   R visitCellRange(CellRange r);
-  R visitFuncApp(Func f);
+  R visitFunc(Func f);
   R visitListValue(ListValue l);
   R visitBlank(Blank blank);
 }

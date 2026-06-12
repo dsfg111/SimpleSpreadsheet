@@ -29,7 +29,7 @@ public class CellRange implements Formula{
   public List<Coord> getCoords() {
     List<Coord> result = new ArrayList<>();
     for (int col = start.col; col <= end.col; col++) {
-      for (int row = start.row; row < end.row; row++) {
+      for (int row = start.row; row <= end.row; row++) {
         result.add(new Coord(col, row));
       }
     }
