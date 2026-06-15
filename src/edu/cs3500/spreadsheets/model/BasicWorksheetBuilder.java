@@ -11,6 +11,10 @@ public class BasicWorksheetBuilder implements WorksheetBuilder<SpreadsheetModel>
 
   @Override
   public WorksheetBuilder<SpreadsheetModel> createCell(int col, int row, String contents) {
+    if (contents.startsWith("=")) {
+      contents = contents.substring(1);
+    }
+
     model.setCellContents(new Coord(col, row), contents);
 
     return this;
