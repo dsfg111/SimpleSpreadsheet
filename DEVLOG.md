@@ -1,12 +1,19 @@
 # 开发日志
+## 2026-06-15
+**进度**: 添加了对于 WorksheetBuilder 的实现, 完全测试了 WorksheetReader  
+**设计**: WorksheetReader 只负责将单元格和字符串内容分离, 对于标准公式以=开头, 
+例如"=(SUM 1 1)", Parser 只解析括号公式, 即"(SUM 1 1)", 如果直接将这个字符串内容
+向下传递会在 Parser 时出错, 所以在自行构建的 BasicWorksheetBuilder 中对于接口函数
+public WorksheetBuilder<SpreadsheetModel> createCell(int col, int row, String contents)
+的实现中要将 contents 参数的开头 = 去除再向下传递.
 
 ## 2026-06-12
 **进度**: 对于单元格公式求值添加了缓存。新增函数 SUB(减), SQRT(开平方)
 
 
 ## 2026-06-07
-**进度**: 检测禁止公式间的直接或间接引用
-**修复**: 解决了之前对于单元格矩形范围引用无法参加函数值计算的问题
+**进度**: 检测禁止公式间的直接或间接引用  
+**修复**: 解决了之前对于单元格矩形范围引用无法参加函数值计算的问题  
 **设计**: 引入一个 dfs 的递归求值辅助函数，用一个集合追踪当前正在使用的单元格
 
 
@@ -21,13 +28,9 @@
 ## 2026-06-04
 - **进度**: 引入 Formula 重构模型求值逻辑
 - **设计**:  
-
-    String --(SetCell)--> Sexp --(SetCell)--> Formula --(Evaluate)--> Value  
-                ^                    ^                      ^
-                |                    |                      |
-              Parser             FormulaTrans           FormulaEval
-
-    函数计算逻辑在 FormulaEval 中
+原始字符串(String) 由 Parser 解析为 S表达式(Sexp), 再由 FormulaEval 解析为 公式(Formula)
+表格模型对单元格进行估值时由内部对 Formula 的访问器来进行, 估值的结果为 值(Value).
+    
 
 ## 2026-06-02
 - **进度**: 基本实现了 model 的接口功能
