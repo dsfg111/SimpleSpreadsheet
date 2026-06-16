@@ -83,7 +83,7 @@ public class BasicSpreadsheetModel implements SpreadsheetModel{
     // 检查循环引用
     // 如果当前单元格已经在“正在计算”的集合中，说明形成了环
     if (visiting.contains(loc)) {
-      throw new IllegalStateException("Circular reference detected at cell: " + loc);
+      throw new IllegalStateException("Error in cell " + loc + ": " + "circular reference");
     }
 
     CellData cell = cells.get(loc);
@@ -104,7 +104,7 @@ public class BasicSpreadsheetModel implements SpreadsheetModel{
       return result;
     } catch (IllegalArgumentException e) {
       throw new IllegalStateException(
-          "Error in cell " + loc + ": " + e.getMessage(), e
+          "Error in cell " + loc + ": " + e.getMessage()
       );
     } finally {
       // 无论成功失败，都把当前节点从 visiting 中移除

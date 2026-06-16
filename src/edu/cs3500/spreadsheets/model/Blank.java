@@ -20,4 +20,9 @@ public enum Blank implements Value {
   public <R> R accept(FormulaVisitor<R> visitor) {
     return visitor.visitBlank(this);
   }
+
+  @Override
+  public String toString() {
+    return "Blank";
+  }
 }

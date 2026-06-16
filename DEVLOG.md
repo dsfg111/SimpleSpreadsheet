@@ -1,4 +1,10 @@
 # 开发日志
+
+## 2026-06-16
+**进度**: 添加了 BeyondGood 入口方法, 使用命令 "-in filename -eval cellname" 
+**设计**: 对于错误信息的格式化打印, 直接捕获 model 的 evaluate 抛出的 IllegalStatueException ,
+使用其信息, 所以消息的格式化, 必须在 model 中实现.
+
 ## 2026-06-15
 **进度**: 添加了对于 WorksheetBuilder 的实现, 完全测试了 WorksheetReader  
 **设计**: WorksheetReader 只负责将单元格和字符串内容分离, 对于标准公式以=开头, 
